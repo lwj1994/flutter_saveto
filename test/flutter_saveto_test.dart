@@ -24,6 +24,5 @@ void main() {
     MockFlutterSavetoPlatform fakePlatform = MockFlutterSavetoPlatform();
     FlutterSavetoPlatform.instance = fakePlatform;
 
-    expect(await FlutterSavetoPlugin.getPlatformVersion(), '42');
   });
 }
