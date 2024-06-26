@@ -18,25 +18,33 @@ PlatformException _createConnectionError(String channelName) {
   );
 }
 
-enum SaveToLocation {
-  download,
-  gallery,
+enum MediaType {
+  audio,
+  file,
+  video,
+  image,
 }
 
 class SaveItemMessage {
   SaveItemMessage({
-    this.location = SaveToLocation.download,
+    this.mediaType = MediaType.file,
     this.name,
     required this.filePath,
+    this.saveDirectoryPath = "",
+    this.saveFilePath,
     this.description,
     this.mimeType,
   });
 
-  SaveToLocation location;
+  MediaType mediaType;
 
   String? name;
 
   String filePath;
+
+  String saveDirectoryPath;
+
+  String? saveFilePath;
 
   String? description;
 
@@ -44,9 +52,11 @@ class SaveItemMessage {
 
   Object encode() {
     return <Object?>[
-      location,
+      mediaType,
       name,
       filePath,
+      saveDirectoryPath,
+      saveFilePath,
       description,
       mimeType,
     ];
@@ -55,11 +65,39 @@ class SaveItemMessage {
   static SaveItemMessage decode(Object result) {
     result as List<Object?>;
     return SaveItemMessage(
-      location: result[0]! as SaveToLocation,
+      mediaType: result[0]! as MediaType,
       name: result[1] as String?,
       filePath: result[2]! as String,
-      description: result[3] as String?,
-      mimeType: result[4] as String?,
+      saveDirectoryPath: result[3]! as String,
+      saveFilePath: result[4] as String?,
+      description: result[5] as String?,
+      mimeType: result[6] as String?,
+    );
+  }
+}
+
+class SaveToResult {
+  SaveToResult({
+    this.success = true,
+    this.message = "",
+  });
+
+  bool success;
+
+  String message;
+
+  Object encode() {
+    return <Object?>[
+      success,
+      message,
+    ];
+  }
+
+  static SaveToResult decode(Object result) {
+    result as List<Object?>;
+    return SaveToResult(
+      success: result[0]! as bool,
+      message: result[1]! as String,
     );
   }
 }
@@ -72,8 +110,11 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is SaveItemMessage) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else     if (value is SaveToLocation) {
+    } else     if (value is SaveToResult) {
       buffer.putUint8(130);
+      writeValue(buffer, value.encode());
+    } else     if (value is MediaType) {
+      buffer.putUint8(131);
       writeValue(buffer, value.index);
     } else {
       super.writeValue(buffer, value);
@@ -86,8 +127,10 @@ class _PigeonCodec extends StandardMessageCodec {
       case 129: 
         return SaveItemMessage.decode(readValue(buffer)!);
       case 130: 
+        return SaveToResult.decode(readValue(buffer)!);
+      case 131: 
         final int? value = readValue(buffer) as int?;
-        return value == null ? null : SaveToLocation.values[value];
+        return value == null ? null : MediaType.values[value];
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -107,7 +150,7 @@ class SaveToHostApi {
 
   final String __pigeon_messageChannelSuffix;
 
-  Future<bool> save(SaveItemMessage saveItem) async {
+  Future<SaveToResult> save(SaveItemMessage saveItem) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.flutter_saveto.SaveToHostApi.save$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
@@ -130,7 +173,7 @@ class SaveToHostApi {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (__pigeon_replyList[0] as bool?)!;
+      return (__pigeon_replyList[0] as SaveToResult?)!;
     }
   }
 }

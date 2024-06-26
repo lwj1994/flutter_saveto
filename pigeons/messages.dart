@@ -5,10 +5,11 @@ import 'package:pigeon/pigeon.dart';
   dartOut: 'lib/src/messages.g.dart',
   dartOptions: DartOptions(),
   // Android
-  kotlinOut: 'android/src/main/kotlin/com/lwjlol/flutter_saveto/Messages.g.kt',
-  kotlinOptions: KotlinOptions(package: "com.lwjlol.flutter_saveto"),
-  // javaOut: 'android/src/main/java/io/flutter/plugins/Messages.java',
-  // javaOptions: JavaOptions(package: "io.flutter.plugins"),
+  // kotlinOut: 'android/src/main/kotlin/com/lwjlol/flutter_saveto/Messages.g.kt',
+  // kotlinOptions: KotlinOptions(package: "com.lwjlol.flutter_saveto"),
+  javaOut: 'android/src/main/java/com/lwjlol/flutter_saveto/Messages.java',
+  javaOptions: JavaOptions(package: "com.lwjlol.flutter_saveto"),
+
   // iOS macOS
   swiftOut: 'ios/Runner/Messages.g.swift',
   swiftOptions: SwiftOptions(),
@@ -23,27 +24,42 @@ import 'package:pigeon/pigeon.dart';
   copyrightHeader: 'pigeons/copyright.txt',
   dartPackageName: 'flutter_saveto',
 ))
-enum SaveToLocation {
+enum MediaType {
   // public download
-  download,
+  audio,
+  file,
+  video,
   // only for mobile(iOS+Android)
-  gallery;
+  image;
 }
 
 class SaveItemMessage {
   SaveItemMessage({
     required this.filePath,
-    this.location = SaveToLocation.download,
+    this.saveDirectoryPath = "",
+    this.mediaType = MediaType.file,
   });
 
-  SaveToLocation location;
+  MediaType mediaType;
   String? name;
   String filePath;
+  String saveDirectoryPath;
+  String? saveFilePath;
   String? description;
   String? mimeType;
 }
 
+class SaveToResult {
+  SaveToResult({
+    this.success = true,
+    this.message = "",
+  });
+
+  bool success;
+  String message;
+}
+
 @HostApi()
 abstract class SaveToHostApi {
-  bool save(SaveItemMessage saveItem);
+  SaveToResult save(SaveItemMessage saveItem);
 }

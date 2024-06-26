@@ -67,42 +67,75 @@ private func nilOrValue<T>(_ value: Any?) -> T? {
   return value as! T?
 }
 
-enum SaveToLocation: Int {
-  case download = 0
-  case gallery = 1
+enum MediaType: Int {
+  case audio = 0
+  case file = 1
+  case video = 2
+  case image = 3
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
 struct SaveItemMessage {
-  var location: SaveToLocation
+  var mediaType: MediaType
   var name: String? = nil
   var filePath: String
+  var saveDirectoryPath: String
+  var saveFilePath: String? = nil
   var description: String? = nil
   var mimeType: String? = nil
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
   static func fromList(_ __pigeon_list: [Any?]) -> SaveItemMessage? {
-    let location = __pigeon_list[0] as! SaveToLocation
+    let mediaType = __pigeon_list[0] as! MediaType
     let name: String? = nilOrValue(__pigeon_list[1])
     let filePath = __pigeon_list[2] as! String
-    let description: String? = nilOrValue(__pigeon_list[3])
-    let mimeType: String? = nilOrValue(__pigeon_list[4])
+    let saveDirectoryPath = __pigeon_list[3] as! String
+    let saveFilePath: String? = nilOrValue(__pigeon_list[4])
+    let description: String? = nilOrValue(__pigeon_list[5])
+    let mimeType: String? = nilOrValue(__pigeon_list[6])
 
     return SaveItemMessage(
-      location: location,
+      mediaType: mediaType,
       name: name,
       filePath: filePath,
+      saveDirectoryPath: saveDirectoryPath,
+      saveFilePath: saveFilePath,
       description: description,
       mimeType: mimeType
     )
   }
   func toList() -> [Any?] {
     return [
-      location,
+      mediaType,
       name,
       filePath,
+      saveDirectoryPath,
+      saveFilePath,
       description,
       mimeType,
+    ]
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct SaveToResult {
+  var success: Bool
+  var message: String
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ __pigeon_list: [Any?]) -> SaveToResult? {
+    let success = __pigeon_list[0] as! Bool
+    let message = __pigeon_list[1] as! String
+
+    return SaveToResult(
+      success: success,
+      message: message
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      success,
+      message,
     ]
   }
 }
@@ -112,10 +145,12 @@ private class MessagesPigeonCodecReader: FlutterStandardReader {
     case 129:
       return SaveItemMessage.fromList(self.readValue() as! [Any?])
     case 130:
-      var enumResult: SaveToLocation? = nil
+      return SaveToResult.fromList(self.readValue() as! [Any?])
+    case 131:
+      var enumResult: MediaType? = nil
       let enumResultAsInt: Int? = nilOrValue(self.readValue() as? Int)
       if let enumResultAsInt = enumResultAsInt {
-        enumResult = SaveToLocation(rawValue: enumResultAsInt)
+        enumResult = MediaType(rawValue: enumResultAsInt)
       }
       return enumResult
     default:
@@ -129,8 +164,11 @@ private class MessagesPigeonCodecWriter: FlutterStandardWriter {
     if let value = value as? SaveItemMessage {
       super.writeByte(129)
       super.writeValue(value.toList())
-    } else if let value = value as? SaveToLocation {
+    } else if let value = value as? SaveToResult {
       super.writeByte(130)
+      super.writeValue(value.toList())
+    } else if let value = value as? MediaType {
+      super.writeByte(131)
       super.writeValue(value.rawValue)
     } else {
       super.writeValue(value)
@@ -154,7 +192,7 @@ class MessagesPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
 
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol SaveToHostApi {
-  func save(saveItem: SaveItemMessage) throws -> Bool
+  func save(saveItem: SaveItemMessage) throws -> SaveToResult
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
