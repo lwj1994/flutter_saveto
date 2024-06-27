@@ -49,10 +49,14 @@ class FileSaver {
             long currentTime = System.currentTimeMillis();
             String imageDate =
                     new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(new Date(currentTime));
+            String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(saveItem.getMimeType());
+            if (extension == null) {
+                extension = "";
+            }
             String screenshotFileNameTemplate = "%s.$suffix";
             String name = saveItem.getName();
             if (name == null || name.isEmpty()) {
-                name = String.format(screenshotFileNameTemplate, imageDate);
+                name = String.format(screenshotFileNameTemplate, imageDate, extension);
             }
 
             ContentValues contentValues = new ContentValues();
@@ -101,6 +105,7 @@ class FileSaver {
                 FileInputStream fileInputStream = null;
                 OutputStream outStream = null;
                 try {
+                    outStream = context.getContentResolver().openOutputStream(uri);
                     fileInputStream = new FileInputStream(saveItem.getFilePath());
                     byte[] buffer = new byte[1024];
                     int count;
