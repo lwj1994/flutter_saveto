@@ -53,7 +53,7 @@ class FileSaver {
             if (extension == null) {
                 extension = "";
             }
-            String screenshotFileNameTemplate = "%s.$suffix";
+            String screenshotFileNameTemplate = "%s.%s";
             String name = saveItem.getName();
             if (name == null || name.isEmpty()) {
                 name = String.format(screenshotFileNameTemplate, imageDate, extension);
@@ -78,7 +78,7 @@ class FileSaver {
             switch (saveItem.getMediaType()) {
                 case FILE:
                     contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + File.separator + getValidDirPath(saveItem.getSaveDirectoryPath()));
-                    uri = MediaStore.Files.getContentUri("external");
+                    uri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
                     break;
                 case VIDEO:
                     contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_MOVIES + File.separator + getValidDirPath(saveItem.getSaveDirectoryPath()));
@@ -94,12 +94,11 @@ class FileSaver {
                     break;
             }
 
-
             if (uri == null) {
                 resultBuilder.setMessage("uri == null");
                 resultBuilder.setSuccess(false);
             } else {
-                context.getContentResolver().insert(uri, contentValues);
+                uri = context.getContentResolver().insert(uri, contentValues);
                 contentValues.clear();
                 contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0);
                 FileInputStream fileInputStream = null;
@@ -116,6 +115,7 @@ class FileSaver {
                     contentValues.clear();
                     contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0);
                     contentValues.putNull(MediaStore.MediaColumns.DATE_EXPIRES);
+                    context.getContentResolver().update(uri, contentValues, null, null);
                 } catch (Exception e) {
                     resultBuilder.setSuccess(false);
                     resultBuilder.setMessage(e.toString());
@@ -148,7 +148,7 @@ class FileSaver {
         long currentTime = System.currentTimeMillis();
         String imageDate =
                 new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(new Date(currentTime));
-        String screenshotFileNameTemplate = "%s.$suffix";
+        String screenshotFileNameTemplate = "%s.%s";
         String fileName = saveItem.getName();
         String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(saveItem.getMimeType());
         if (extension == null) {
