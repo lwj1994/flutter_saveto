@@ -16,7 +16,11 @@ class FlutterSavetoPlugin : FlutterPlugin, ActivityAware {
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         Messages.SaveToHostApi.setUp(
             binding.binaryMessenger,
-            HostApiIml(FileSaver(binding.applicationContext)),
+            HostApiIml(
+                FileSaver(
+                    binding.applicationContext
+                )
+            ),
         )
     }
 
