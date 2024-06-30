@@ -3,58 +3,37 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_saveto/flutter_saveto.dart';
+import 'package:flutter_saveto/src/messages.g.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final _FlutterSavetoPlugin = FlutterSaveto();
-
-  @override
-  void initState() {
-    super.initState();
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion = 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
-  }
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: Text('Pigeon Example'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: ElevatedButton(
+            onPressed: () async {
+              final api = SaveToHostApi();
+              final request = SaveItemMessage(
+                filePath: '/Users/macbookpro/Desktop/WX20240627-192152@2x.png',
+                mediaType: MediaType
+                    .image, 
+              );              try {
+                final result = await api.save(request);
+                print('Save result: ${result.message}');
+              } catch (e) {
+                print('Error: $e');
+              }
+            },
+            child: Text('Save Image'),
+          ),
         ),
       ),
     );
