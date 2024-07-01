@@ -80,7 +80,6 @@ struct SaveItemMessage {
   var name: String? = nil
   var filePath: String
   var saveDirectoryPath: String
-  var saveFilePath: String? = nil
   var description: String? = nil
   var mimeType: String? = nil
 
@@ -90,16 +89,14 @@ struct SaveItemMessage {
     let name: String? = nilOrValue(__pigeon_list[1])
     let filePath = __pigeon_list[2] as! String
     let saveDirectoryPath = __pigeon_list[3] as! String
-    let saveFilePath: String? = nilOrValue(__pigeon_list[4])
-    let description: String? = nilOrValue(__pigeon_list[5])
-    let mimeType: String? = nilOrValue(__pigeon_list[6])
+    let description: String? = nilOrValue(__pigeon_list[4])
+    let mimeType: String? = nilOrValue(__pigeon_list[5])
 
     return SaveItemMessage(
       mediaType: mediaType,
       name: name,
       filePath: filePath,
       saveDirectoryPath: saveDirectoryPath,
-      saveFilePath: saveFilePath,
       description: description,
       mimeType: mimeType
     )
@@ -110,7 +107,6 @@ struct SaveItemMessage {
       name,
       filePath,
       saveDirectoryPath,
-      saveFilePath,
       description,
       mimeType,
     ]

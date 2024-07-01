@@ -44,7 +44,6 @@ class SaveItemMessage {
   String? name;
   String filePath;
   String saveDirectoryPath;
-  String? saveFilePath;
   String? description;
   String? mimeType;
 }
