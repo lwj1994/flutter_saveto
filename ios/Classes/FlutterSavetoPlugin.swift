@@ -4,10 +4,6 @@ import Photos
 
 public class FlutterSavetoPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "flutter_saveto", binaryMessenger: registrar.messenger())
-        let instance = FlutterSavetoPlugin()
-        registrar.addMethodCallDelegate(instance, channel: channel)
-        
         SaveToHostApiSetup.setUp(
             binaryMessenger: registrar.messenger(),
             api: SaveToImplementation()
@@ -37,7 +33,7 @@ class SaveToImplementation: NSObject, SaveToHostApi {
             RunLoop.current.run(mode: .default, before: Date.distantFuture)
         }
         
-        return result ?? SaveToResult(success: false, message: "保存失败")
+        return result ?? SaveToResult(success: false, message: "")
     }
     
     func saveVideo(_ path: String, isReturnImagePath: Bool) {
@@ -66,7 +62,7 @@ class SaveToImplementation: NSObject, SaveToHostApi {
                         }
                     }
                 } else {
-                    self.saveResult(isSuccess: false, error: "保存失败，请检查权限")
+                    self.saveResult(isSuccess: false, error: "")
                 }
             }
         })
@@ -100,7 +96,7 @@ class SaveToImplementation: NSObject, SaveToHostApi {
                         }
                     }
                 } else {
-                    self.saveResult(isSuccess: false, error: "保存失败，请检查权限")
+                    self.saveResult(isSuccess: false, error: "")
                 }
             }
         })
@@ -108,7 +104,7 @@ class SaveToImplementation: NSObject, SaveToHostApi {
     
     func saveImageAtFileUrl(_ url: String, isReturnImagePath: Bool) {
         guard let image = UIImage(contentsOfFile: url) else {
-            saveResult(isSuccess: false, error: "无法从路径加载图片：\(url)")
+            saveResult(isSuccess: false, error: "error load：\(url)")
             return
         }
         
@@ -139,7 +135,7 @@ class SaveToImplementation: NSObject, SaveToHostApi {
                         }
                     }
                 } else {
-                    self.saveResult(isSuccess: false, error: "保存失败，请检查权限")
+                    self.saveResult(isSuccess: false, error: "check permission")
                 }
             }
         })
@@ -154,7 +150,7 @@ class SaveToImplementation: NSObject, SaveToHostApi {
     }
     
     func saveResult(isSuccess: Bool, error: String? = nil, filePath: String? = nil) {
-        result = SaveToResult(success: isSuccess, message: error ?? "保存成功")
+        result = SaveToResult(success: isSuccess, message: error ?? "")
     }
     
     func saveFile(from sourceURL: URL, saveItem: SaveItemMessage) {

@@ -133,16 +133,6 @@ public class Messages {
       this.saveDirectoryPath = setterArg;
     }
 
-    private @Nullable String saveFilePath;
-
-    public @Nullable String getSaveFilePath() {
-      return saveFilePath;
-    }
-
-    public void setSaveFilePath(@Nullable String setterArg) {
-      this.saveFilePath = setterArg;
-    }
-
     private @Nullable String description;
 
     public @Nullable String getDescription() {
@@ -200,14 +190,6 @@ public class Messages {
         return this;
       }
 
-      private @Nullable String saveFilePath;
-
-      @CanIgnoreReturnValue
-      public @NonNull Builder setSaveFilePath(@Nullable String setterArg) {
-        this.saveFilePath = setterArg;
-        return this;
-      }
-
       private @Nullable String description;
 
       @CanIgnoreReturnValue
@@ -230,7 +212,6 @@ public class Messages {
         pigeonReturn.setName(name);
         pigeonReturn.setFilePath(filePath);
         pigeonReturn.setSaveDirectoryPath(saveDirectoryPath);
-        pigeonReturn.setSaveFilePath(saveFilePath);
         pigeonReturn.setDescription(description);
         pigeonReturn.setMimeType(mimeType);
         return pigeonReturn;
@@ -239,12 +220,11 @@ public class Messages {
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(7);
+      ArrayList<Object> toListResult = new ArrayList<Object>(6);
       toListResult.add(mediaType);
       toListResult.add(name);
       toListResult.add(filePath);
       toListResult.add(saveDirectoryPath);
-      toListResult.add(saveFilePath);
       toListResult.add(description);
       toListResult.add(mimeType);
       return toListResult;
@@ -260,11 +240,9 @@ public class Messages {
       pigeonResult.setFilePath((String) filePath);
       Object saveDirectoryPath = __pigeon_list.get(3);
       pigeonResult.setSaveDirectoryPath((String) saveDirectoryPath);
-      Object saveFilePath = __pigeon_list.get(4);
-      pigeonResult.setSaveFilePath((String) saveFilePath);
-      Object description = __pigeon_list.get(5);
+      Object description = __pigeon_list.get(4);
       pigeonResult.setDescription((String) description);
-      Object mimeType = __pigeon_list.get(6);
+      Object mimeType = __pigeon_list.get(5);
       pigeonResult.setMimeType((String) mimeType);
       return pigeonResult;
     }

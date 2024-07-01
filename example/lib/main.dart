@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:flutter_saveto/flutter_saveto.dart';
 import 'package:flutter_saveto/src/messages.g.dart';
 
@@ -22,12 +19,13 @@ class MyApp extends StatelessWidget {
             onPressed: () async {
               final api = SaveToHostApi();
               final request = SaveItemMessage(
-                filePath: '/Users/macbookpro/Desktop/WX20240627-192152@2x.png',
-                mediaType: MediaType
-                    .image, 
-              );              try {
+                filePath: '/Users/luwenjie/Downloads/发布.png',
+                mediaType: MediaType.file,
+                saveDirectoryPath: ""
+              );
+              try {
                 final result = await api.save(request);
-                print('Save result: ${result.message}');
+                print('Save result: ${result.success}');
               } catch (e) {
                 print('Error: $e');
               }
