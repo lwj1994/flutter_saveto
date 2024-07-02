@@ -11,7 +11,7 @@ import 'package:pigeon/pigeon.dart';
   javaOptions: JavaOptions(package: "com.lwjlol.flutter_saveto"),
 
   // iOS macOS
-  swiftOut: 'ios/Runner/Messages.g.swift',
+  swiftOut: 'ios/Classes/Messages.g.swift',
   swiftOptions: SwiftOptions(),
   //objcHeaderOut: 'macos/Runner/messages.g.h',
   //objcSourceOut: 'macos/Runner/messages.g.m',

@@ -1,6 +1,28 @@
 import Flutter
 import UIKit
 import Photos
+import Foundation
+import CommonCrypto
+import SwiftyMimeTypes
+extension String {
+    var md5: String {
+        let length = Int(CC_MD5_DIGEST_LENGTH)
+        let messageData = self.data(using: .utf8)!
+        var digestData = Data(count: length)
+        
+        _ = digestData.withUnsafeMutableBytes { digestBytes -> UInt8 in
+            messageData.withUnsafeBytes { messageBytes -> UInt8 in
+                if let messageBytesBaseAddress = messageBytes.baseAddress,
+                   let digestBytesBlindMemory = digestBytes.bindMemory(to: UInt8.self).baseAddress {
+                    let messageLength = CC_LONG(messageData.count)
+                    CC_MD5(messageBytesBaseAddress, messageLength, digestBytesBlindMemory)
+                }
+                return 0
+            }
+        }
+        return digestData.map { String(format: "%02hhx", $0) }.joined()
+    }
+}
 
 public class FlutterSavetoPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -155,14 +177,52 @@ class SaveToImplementation: NSObject, SaveToHostApi {
     
     func saveFile(from sourceURL: URL, saveItem: SaveItemMessage) {
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+
         
-        var destinationURL: URL
-        
-        if let saveFilePath = saveItem.saveFilePath {
-            destinationURL = URL(fileURLWithPath: saveFilePath)
-        } else {
-            destinationURL = documentsDirectory.appendingPathComponent(sourceURL.lastPathComponent)
+
+//        if let saveFilePath = saveItem.saveFilePath {
+//            destinationURL = URL(fileURLWithPath: saveFilePath)
+//        } else {
+//            
+//        }
+        var fileExtension = "";
+        switch(saveItem.mediaType){
+            case MediaType.audio:
+            fileExtension = "aac";
+                break;
+            case MediaType.file:
+            fileExtension = "bin";
+                break;
+            case MediaType.image:
+            fileExtension = "png";
+                break;
+            case MediaType.video:
+            fileExtension = "mp4";
+                break;
         }
+        
+        if(saveItem.mimeType != nil && saveItem.mimeType?.isEmpty == false){
+            let ext = MimeTypes.filenameExtensions(forType: saveItem.mimeType!).first;
+            if(ext != nil){
+                fileExtension  =  ext!;
+            }
+        }
+        
+        
+         let relativePath = getValidDirPath(saveItem.saveDirectoryPath)
+         // 创建目标文件夹
+         let targetDirectory = documentsDirectory.appendingPathComponent(relativePath)
+         do {
+             try fileManager.createDirectory(at: targetDirectory, withIntermediateDirectories: true, attributes: nil)
+         } catch {
+             print("Error creating directory:", error.localizedDescription)
+             self.saveResult(isSuccess: false, error: error.localizedDescription)
+             return
+         }
+    
+        // 目标文件URL
+        let destinationURL = targetDirectory.appendingPathComponent(saveItem.filePath.md5 + "." + fileExtension)
+        
         
         do {
             let data = try Data(contentsOf: sourceURL)
@@ -177,7 +237,7 @@ class SaveToImplementation: NSObject, SaveToHostApi {
         }
     }
     
-    static func getValidDirPath(_ directoryPath: String) -> String {
+    func getValidDirPath(_ directoryPath: String) -> String {
         var path = directoryPath
         if path.hasPrefix("/") {
             path = String(path.dropFirst())
