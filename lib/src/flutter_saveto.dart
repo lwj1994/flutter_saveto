@@ -1,8 +1,8 @@
 import 'package:flutter_saveto/src/messages.g.dart';
 
 class FlutterSaveto {
-  static save(SaveItemMessage saveItem) {
-    SaveToHostApi().save(saveItem);
+  static Future<SaveToResult> save(SaveItemMessage saveItem) {
+    return SaveToHostApi().save(saveItem);
   }
 }
 
