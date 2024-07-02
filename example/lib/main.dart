@@ -19,9 +19,10 @@ class MyApp extends StatelessWidget {
             onPressed: () async {
               final api = SaveToHostApi();
               final request = SaveItemMessage(
-                filePath: '/Users/luwenjie/Downloads/发布.png',
+                filePath: '/Users/luwenjie/Desktop/6f0378dcccff70d3ee9908dd78cc61ef_1719904211611.jpeg',
                 mediaType: MediaType.file,
-                saveDirectoryPath: ""
+                saveDirectoryPath: "download",
+                mimeType: "image/jpeg"
               );
               try {
                 final result = await api.save(request);

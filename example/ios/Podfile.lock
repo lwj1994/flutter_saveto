@@ -2,13 +2,19 @@ PODS:
   - Flutter (1.0.0)
   - flutter_saveto (0.0.1):
     - Flutter
+    - SwiftyMimeTypes (>= 2.1.0)
   - integration_test (0.0.1):
     - Flutter
+  - SwiftyMimeTypes (2.1.0)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_saveto (from `.symlinks/plugins/flutter_saveto/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
+
+SPEC REPOS:
+  trunk:
+    - SwiftyMimeTypes
 
 EXTERNAL SOURCES:
   Flutter:
@@ -20,8 +26,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_saveto: 813a97fab9a8475994bb022c2e95ba36eb6a76c6
+  flutter_saveto: 0b5ffb8ca772e458effed93a40be0563d7f3728d
   integration_test: ce0a3ffa1de96d1a89ca0ac26fca7ea18a749ef4
+  SwiftyMimeTypes: df2392d0f7b7c06bb3a65909e0d1efc09f5b6b6b
 
 PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
 
