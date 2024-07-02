@@ -45,6 +45,7 @@ class FileSaver {
         }
         Messages.SaveToResult.Builder resultBuilder = new Messages.SaveToResult.Builder();
         resultBuilder.setSuccess(true);
+        resultBuilder.setMessage("");
         try {
             long currentTime = System.currentTimeMillis();
             String imageDate =
@@ -144,6 +145,7 @@ class FileSaver {
     private Messages.SaveToResult save29(Messages.SaveItemMessage saveItem, Context context) {
         Messages.SaveToResult.Builder resultBuilder = new Messages.SaveToResult.Builder();
         resultBuilder.setSuccess(true);
+        resultBuilder.setMessage("");
 
         long currentTime = System.currentTimeMillis();
         String imageDate =
