@@ -61,11 +61,12 @@ class SaveToImplementation: NSObject, SaveToHostApi {
     func saveVideo(_ path: String, isReturnImagePath: Bool) {
         if !isReturnImagePath {
             UISaveVideoAtPathToSavedPhotosAlbum(path, self, #selector(didFinishSavingVideo(videoPath:error:contextInfo:)), nil)
+            saveResult(isSuccess: true, error: "")
             return
         }
-        
+
         var videoIds: [String] = []
-        
+
         PHPhotoLibrary.shared().performChanges({
             let req = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: URL(fileURLWithPath: path))
             if let videoId = req?.placeholderForCreatedAsset?.localIdentifier {
@@ -89,15 +90,16 @@ class SaveToImplementation: NSObject, SaveToHostApi {
             }
         })
     }
-    
+
     func saveImage(_ image: UIImage, isReturnImagePath: Bool) {
         if (!isReturnImagePath) {
             UIImageWriteToSavedPhotosAlbum(image, self, #selector(didFinishSavingImage(image:error:contextInfo:)), nil)
+            saveResult(isSuccess: true, error: "")
             return
         }
-        
+
         var imageIds: [String] = []
-        
+
         PHPhotoLibrary.shared().performChanges({
             let req = PHAssetChangeRequest.creationRequestForAsset(from: image)
             if let imageId = req.placeholderForCreatedAsset?.localIdentifier {
@@ -123,20 +125,21 @@ class SaveToImplementation: NSObject, SaveToHostApi {
             }
         })
     }
-    
+
     func saveImageAtFileUrl(_ url: String, isReturnImagePath: Bool) {
         guard let image = UIImage(contentsOfFile: url) else {
             saveResult(isSuccess: false, error: "error load：\(url)")
             return
         }
-        
+
         if (!isReturnImagePath) {
             UIImageWriteToSavedPhotosAlbum(image, self, #selector(didFinishSavingImage(image:error:contextInfo:)), nil)
+            saveResult(isSuccess: true, error: "")
             return
         }
-        
+
         var imageIds: [String] = []
-        
+
         PHPhotoLibrary.shared().performChanges({
             let req = PHAssetChangeRequest.creationRequestForAsset(from: image)
             if let imageId = req.placeholderForCreatedAsset?.localIdentifier {
@@ -162,28 +165,28 @@ class SaveToImplementation: NSObject, SaveToHostApi {
             }
         })
     }
-    
+
     @objc func didFinishSavingImage(image: UIImage, error: NSError?, contextInfo: UnsafeMutableRawPointer?) {
         saveResult(isSuccess: error == nil, error: error?.localizedDescription)
     }
-    
+
     @objc func didFinishSavingVideo(videoPath: String, error: NSError?, contextInfo: UnsafeMutableRawPointer?) {
         saveResult(isSuccess: error == nil, error: error?.localizedDescription)
     }
-    
+
     func saveResult(isSuccess: Bool, error: String? = nil, filePath: String? = nil) {
         result = SaveToResult(success: isSuccess, message: error ?? "")
     }
-    
+
     func saveFile(from sourceURL: URL, saveItem: SaveItemMessage) {
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
 
-        
+
 
 //        if let saveFilePath = saveItem.saveFilePath {
 //            destinationURL = URL(fileURLWithPath: saveFilePath)
 //        } else {
-//            
+//
 //        }
         var fileExtension = "";
         switch(saveItem.mediaType){
@@ -248,4 +251,3 @@ class SaveToImplementation: NSObject, SaveToHostApi {
         return path
     }
 }
-
