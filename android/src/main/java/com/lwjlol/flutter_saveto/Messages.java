@@ -360,11 +360,35 @@ public class Messages {
     }
   }
 
+
+  /** Asynchronous error handling return type for non-nullable API method returns. */
+  public interface Result<T> {
+    /** Success case callback method for handling returns. */
+    void success(@NonNull T result);
+
+    /** Failure case callback method for handling errors. */
+    void error(@NonNull Throwable error);
+  }
+  /** Asynchronous error handling return type for nullable API method returns. */
+  public interface NullableResult<T> {
+    /** Success case callback method for handling returns. */
+    void success(@Nullable T result);
+
+    /** Failure case callback method for handling errors. */
+    void error(@NonNull Throwable error);
+  }
+  /** Asynchronous error handling return type for void API method returns. */
+  public interface VoidResult {
+    /** Success case callback method for handling returns. */
+    void success();
+
+    /** Failure case callback method for handling errors. */
+    void error(@NonNull Throwable error);
+  }
   /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
   public interface SaveToHostApi {
 
-    @NonNull 
-    SaveToResult save(@NonNull SaveItemMessage saveItem);
+    void save(@NonNull SaveItemMessage saveItem, @NonNull Result<SaveToResult> result);
 
     /** The codec used by SaveToHostApi. */
     static @NonNull MessageCodec<Object> getCodec() {
@@ -386,15 +410,20 @@ public class Messages {
                 ArrayList<Object> wrapped = new ArrayList<Object>();
                 ArrayList<Object> args = (ArrayList<Object>) message;
                 SaveItemMessage saveItemArg = (SaveItemMessage) args.get(0);
-                try {
-                  SaveToResult output = api.save(saveItemArg);
-                  wrapped.add(0, output);
-                }
- catch (Throwable exception) {
-                  ArrayList<Object> wrappedError = wrapError(exception);
-                  wrapped = wrappedError;
-                }
-                reply.reply(wrapped);
+                Result<SaveToResult> resultCallback =
+                    new Result<SaveToResult>() {
+                      public void success(SaveToResult result) {
+                        wrapped.add(0, result);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.save(saveItemArg, resultCallback);
               });
         } else {
           channel.setMessageHandler(null);

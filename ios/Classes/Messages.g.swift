@@ -186,9 +186,10 @@ class MessagesPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
   static let shared = MessagesPigeonCodec(readerWriter: MessagesPigeonCodecReaderWriter())
 }
 
+
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol SaveToHostApi {
-  func save(saveItem: SaveItemMessage) throws -> SaveToResult
+  func save(saveItem: SaveItemMessage, completion: @escaping (Result<SaveToResult, Error>) -> Void)
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -202,11 +203,13 @@ class SaveToHostApiSetup {
       saveChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let saveItemArg = args[0] as! SaveItemMessage
-        do {
-          let result = try api.save(saveItem: saveItemArg)
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
+        api.save(saveItem: saveItemArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
         }
       }
     } else {

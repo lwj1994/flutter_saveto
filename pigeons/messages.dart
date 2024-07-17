@@ -60,5 +60,6 @@ class SaveToResult {
 
 @HostApi()
 abstract class SaveToHostApi {
+  @async
   SaveToResult save(SaveItemMessage saveItem);
 }

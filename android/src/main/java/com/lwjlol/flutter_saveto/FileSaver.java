@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.webkit.MimeTypeMap;
 
@@ -213,14 +212,5 @@ class FileSaver {
         }
 
         return resultBuilder.build();
-    }
-
-
-    private String getMIMEType(String extension) {
-        String type = null;
-        if (!TextUtils.isEmpty(extension)) {
-            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
-        }
-        return type;
     }
 }
