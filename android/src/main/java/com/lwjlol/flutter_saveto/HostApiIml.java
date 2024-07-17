@@ -9,9 +9,9 @@ class HostApiIml implements Messages.SaveToHostApi {
         this.saver = saver;
     }
 
-    @NonNull
     @Override
-    public Messages.SaveToResult save(@NonNull Messages.SaveItemMessage saveItem) {
-        return saver.save(saveItem);
+    public void save(@NonNull Messages.SaveItemMessage saveItem, @NonNull Messages.Result<Messages.SaveToResult> result) {
+        Messages.SaveToResult saveToResult = saver.save(saveItem);
+        result.success(saveToResult);
     }
 }

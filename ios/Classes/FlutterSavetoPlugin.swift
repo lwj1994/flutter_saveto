@@ -34,137 +34,37 @@ public class FlutterSavetoPlugin: NSObject, FlutterPlugin {
 }
 
 class SaveToImplementation: NSObject, SaveToHostApi {
-    var result: SaveToResult?
+    var resultCallback: ((Result<SaveToResult, Error>) -> Void)?
     private var tempURL: URL?
     private var fileManager = FileManager.default
     
-    func save(saveItem: SaveItemMessage) throws -> SaveToResult {
-        result = nil // 初始化 result 属性
-        
+    func save(saveItem: SaveItemMessage, completion: @escaping (Result<SaveToResult, Error>) -> Void) {
+        resultCallback = completion;
         switch saveItem.mediaType {
         case .image:
-            saveImageAtFileUrl(saveItem.filePath, isReturnImagePath: false)
+            saveImageAtFileUrl(saveItem.filePath)
         case .video:
-            saveVideo(saveItem.filePath, isReturnImagePath: false)
+            saveVideo(saveItem.filePath)
         case .audio, .file:
-            saveFile(from: URL(fileURLWithPath: saveItem.filePath), saveItem: saveItem)
+            saveFile(from: URL(fileURLWithPath: saveItem.filePath), saveItem: saveItem);
         }
-        
-        // 等待保存结果返回
-        while result == nil {
-            RunLoop.current.run(mode: .default, before: Date.distantFuture)
-        }
-        
-        return result ?? SaveToResult(success: false, message: "")
+    
     }
     
-    func saveVideo(_ path: String, isReturnImagePath: Bool) {
-        if !isReturnImagePath {
-            UISaveVideoAtPathToSavedPhotosAlbum(path, self, #selector(didFinishSavingVideo(videoPath:error:contextInfo:)), nil)
-            saveResult(isSuccess: true, error: "")
-            return
-        }
-
-        var videoIds: [String] = []
-
-        PHPhotoLibrary.shared().performChanges({
-            let req = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: URL(fileURLWithPath: path))
-            if let videoId = req?.placeholderForCreatedAsset?.localIdentifier {
-                videoIds.append(videoId)
-            }
-        }, completionHandler: { [unowned self] (success, error) in
-            DispatchQueue.main.async {
-                if success, videoIds.count > 0 {
-                    let assetResult = PHAsset.fetchAssets(withLocalIdentifiers: videoIds, options: nil)
-                    if assetResult.count > 0 {
-                        let videoAsset = assetResult[0]
-                        PHImageManager().requestAVAsset(forVideo: videoAsset, options: nil) { (avurlAsset, _, _) in
-                            if let urlStr = (avurlAsset as? AVURLAsset)?.url.absoluteString {
-                                self.saveResult(isSuccess: true, filePath: urlStr)
-                            }
-                        }
-                    }
-                } else {
-                    self.saveResult(isSuccess: false, error: "")
-                }
-            }
-        })
+    func saveVideo(_ path: String) {
+        UISaveVideoAtPathToSavedPhotosAlbum(path, self, #selector(didFinishSavingVideo(videoPath:error:contextInfo:)), nil)
+        saveResult(isSuccess: true, error: "")
     }
 
-    func saveImage(_ image: UIImage, isReturnImagePath: Bool) {
-        if (!isReturnImagePath) {
-            UIImageWriteToSavedPhotosAlbum(image, self, #selector(didFinishSavingImage(image:error:contextInfo:)), nil)
-            saveResult(isSuccess: true, error: "")
-            return
-        }
-
-        var imageIds: [String] = []
-
-        PHPhotoLibrary.shared().performChanges({
-            let req = PHAssetChangeRequest.creationRequestForAsset(from: image)
-            if let imageId = req.placeholderForCreatedAsset?.localIdentifier {
-                imageIds.append(imageId)
-            }
-        }, completionHandler: { [unowned self] (success, error) in
-            DispatchQueue.main.async {
-                if (success && imageIds.count > 0) {
-                    let assetResult = PHAsset.fetchAssets(withLocalIdentifiers: imageIds, options: nil)
-                    if assetResult.count > 0 {
-                        let imageAsset = assetResult[0]
-                        let options = PHContentEditingInputRequestOptions()
-                        options.canHandleAdjustmentData = { _ in true }
-                        imageAsset.requestContentEditingInput(with: options) { [unowned self] (contentEditingInput, _) in
-                            if let urlStr = contentEditingInput?.fullSizeImageURL?.absoluteString {
-                                self.saveResult(isSuccess: true, filePath: urlStr)
-                            }
-                        }
-                    }
-                } else {
-                    self.saveResult(isSuccess: false, error: "")
-                }
-            }
-        })
-    }
-
-    func saveImageAtFileUrl(_ url: String, isReturnImagePath: Bool) {
+    func saveImageAtFileUrl(_ url: String) {
         guard let image = UIImage(contentsOfFile: url) else {
-            saveResult(isSuccess: false, error: "error load：\(url)")
-            return
-        }
-
-        if (!isReturnImagePath) {
-            UIImageWriteToSavedPhotosAlbum(image, self, #selector(didFinishSavingImage(image:error:contextInfo:)), nil)
-            saveResult(isSuccess: true, error: "")
-            return
-        }
-
-        var imageIds: [String] = []
-
-        PHPhotoLibrary.shared().performChanges({
-            let req = PHAssetChangeRequest.creationRequestForAsset(from: image)
-            if let imageId = req.placeholderForCreatedAsset?.localIdentifier {
-                imageIds.append(imageId)
-            }
-        }, completionHandler: { [unowned self] (success, error) in
-            DispatchQueue.main.async {
-                if (success && imageIds.count > 0) {
-                    let assetResult = PHAsset.fetchAssets(withLocalIdentifiers: imageIds, options: nil)
-                    if assetResult.count > 0 {
-                        let imageAsset = assetResult[0]
-                        let options = PHContentEditingInputRequestOptions()
-                        options.canHandleAdjustmentData = { _ in true }
-                        imageAsset.requestContentEditingInput(with: options) { [unowned self] (contentEditingInput, _) in
-                            if let urlStr = contentEditingInput?.fullSizeImageURL?.absoluteString {
-                                self.saveResult(isSuccess: true, filePath: urlStr)
-                            }
-                        }
-                    }
-                } else {
-                    self.saveResult(isSuccess: false, error: "check permission")
+                    saveResult(isSuccess: false, error: "error load：\(url)")
+                    return
                 }
-            }
-        })
+        UIImageWriteToSavedPhotosAlbum(image, self, #selector(didFinishSavingImage(image:error:contextInfo:)), nil)
     }
+    
+
 
     @objc func didFinishSavingImage(image: UIImage, error: NSError?, contextInfo: UnsafeMutableRawPointer?) {
         saveResult(isSuccess: error == nil, error: error?.localizedDescription)
@@ -174,20 +74,16 @@ class SaveToImplementation: NSObject, SaveToHostApi {
         saveResult(isSuccess: error == nil, error: error?.localizedDescription)
     }
 
-    func saveResult(isSuccess: Bool, error: String? = nil, filePath: String? = nil) {
-        result = SaveToResult(success: isSuccess, message: error ?? "")
+    func saveResult(isSuccess: Bool, error: String? = nil) {
+        if(resultCallback == nil) {
+            return;
+        }
+        resultCallback!(.success(SaveToResult(success: isSuccess, message: error ?? "")));
     }
 
     func saveFile(from sourceURL: URL, saveItem: SaveItemMessage) {
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
 
-
-
-//        if let saveFilePath = saveItem.saveFilePath {
-//            destinationURL = URL(fileURLWithPath: saveFilePath)
-//        } else {
-//
-//        }
         var fileExtension = "";
         switch(saveItem.mediaType){
             case MediaType.audio:
