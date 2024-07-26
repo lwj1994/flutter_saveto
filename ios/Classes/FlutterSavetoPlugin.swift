@@ -57,11 +57,40 @@ class SaveToImplementation: NSObject, SaveToHostApi {
     }
 
     func saveImageAtFileUrl(_ url: String) {
-        guard let image = UIImage(contentsOfFile: url) else {
-                    saveResult(isSuccess: false, error: "error load：\(url)")
-                    return
+//         guard let image = UIImage(contentsOfFile: url) else {
+//                     saveResult(isSuccess: false, error: "error load：\(url)")
+//                     return
+//                 }
+        // UIImageWriteToSavedPhotosAlbum(image, self, #selector(didFinishSavingImage(image:error:contextInfo:)), nil)
+        PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.creationRequestForAssetFromImage(atFileURL:URL(fileURLWithPath: url))
+        }, completionHandler: { success, error in
+            if success {
+                self.saveResult(isSuccess: true, error: "")
+            } else {
+                if let error = error {
+                    self.saveResult(isSuccess: false, error: error.localizedDescription)
+                } else {
+                    self.saveResult(isSuccess: false, error: "Unknown error occurred while saving image.")
                 }
-        UIImageWriteToSavedPhotosAlbum(image, self, #selector(didFinishSavingImage(image:error:contextInfo:)), nil)
+            }
+        })
+        
+//        PHPhotoLibrary.requestAuthorization { status in
+//               if status == .authorized {
+//                   PHPhotoLibrary.shared().performChanges({
+//                       PHAssetChangeRequest.creationRequestForAsset(from: image)
+//                   }) { success, error in
+//                       if success {
+//                           self.saveResult(isSuccess: true, error: "")
+//                       } else {
+//                           self.saveResult(isSuccess: false, error: error?.localizedDescription ?? "")
+//                       }
+//                   }
+//               } else {
+//                    self.saveResult(isSuccess: false, error: "permission deny")
+//               }
+//           }
     }
     
 
