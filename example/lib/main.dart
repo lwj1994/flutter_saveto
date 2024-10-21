@@ -20,8 +20,9 @@ class MyApp extends StatelessWidget {
               final api = SaveToHostApi();
               final request = SaveItemMessage(
                 filePath: '/Users/luwenjie/Documents/GitHub/flutter_saveto/example/cc424cb47c2c8b07469ce57c238e49b6_1721974061623.gif',
-                mediaType: MediaType.image,
-                mimeType: "image/gif"
+                mediaType: MediaType.file,
+                mimeType: "image/gif",
+                name: "test.gif"
               );
               try {
                 final result = await api.save(request);
