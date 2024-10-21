@@ -147,9 +147,13 @@ class SaveToImplementation: NSObject, SaveToHostApi {
              self.saveResult(isSuccess: false, error: error.localizedDescription)
              return
          }
-    
+        
+        var fileName = saveItem.name;
+        if(fileName == nil || fileName!.isEmpty){
+            fileName = saveItem.filePath.md5 + "." + fileExtension;
+        }
         // 目标文件URL
-        let destinationURL = targetDirectory.appendingPathComponent(saveItem.filePath.md5 + "." + fileExtension)
+        let destinationURL = targetDirectory.appendingPathComponent(fileName!)
         
         
         do {
