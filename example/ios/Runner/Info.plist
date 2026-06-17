@@ -9,7 +9,7 @@
     <key>NSDocumentTypeUsageDescription</key>
     <string>We need access to your document library to save files.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>我们需要访问您的相册以保存图片</string>
+	<string>Save images to your Photos library.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

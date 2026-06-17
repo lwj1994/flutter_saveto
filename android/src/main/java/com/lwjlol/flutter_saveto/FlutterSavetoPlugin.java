@@ -9,6 +9,7 @@ import io.flutter.plugin.common.PluginRegistry;
 
 public class FlutterSavetoPlugin implements FlutterPlugin, ActivityAware {
     private ActivityPluginBinding activityPluginBinding;
+    private HostApiIml hostApi;
     private final PluginRegistry.NewIntentListener onNewIntent = new PluginRegistry.NewIntentListener() {
         @Override
         public boolean onNewIntent(Intent intent) {
@@ -18,18 +19,24 @@ public class FlutterSavetoPlugin implements FlutterPlugin, ActivityAware {
 
     @Override
     public void onAttachedToEngine(FlutterPluginBinding binding) {
+        hostApi = new HostApiIml(
+                new FileSaver(
+                        binding.getApplicationContext()
+                )
+        );
         Messages.SaveToHostApi.setUp(
                 binding.getBinaryMessenger(),
-                new HostApiIml(
-                        new FileSaver(
-                                binding.getApplicationContext()
-                        )
-                )
+                hostApi
         );
     }
 
     @Override
     public void onDetachedFromEngine(FlutterPluginBinding binding) {
+        Messages.SaveToHostApi.setUp(binding.getBinaryMessenger(), null);
+        if (hostApi != null) {
+            hostApi.shutdown();
+            hostApi = null;
+        }
     }
 
     @Override
@@ -48,7 +55,9 @@ public class FlutterSavetoPlugin implements FlutterPlugin, ActivityAware {
 
     @Override
     public void onDetachedFromActivity() {
-        activityPluginBinding.removeOnNewIntentListener(onNewIntent);
+        if (activityPluginBinding != null) {
+            activityPluginBinding.removeOnNewIntentListener(onNewIntent);
+        }
         activityPluginBinding = null;
     }
 }

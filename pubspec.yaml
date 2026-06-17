@@ -10,10 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_web_plugins:
-    sdk: flutter
-  web: ^0.5.1
-  plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
   flutter_test:
@@ -44,15 +40,6 @@ flutter:
         pluginClass: FlutterSavetoPlugin
       ios:
         pluginClass: FlutterSavetoPlugin
-      linux:
-        pluginClass: FlutterSavetoPlugin
-      macos:
-        pluginClass: FlutterSavetoPlugin
-      windows:
-        pluginClass: FlutterSavetoPluginCApi
-      web:
-        pluginClass: FlutterSavetoWeb
-        fileName: flutter_saveto_web.dart
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
